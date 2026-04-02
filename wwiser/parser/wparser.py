@@ -3867,6 +3867,23 @@ def parse_chunk_akbk(obj):
     return
 
 def parse_chunk(obj):
+    def peek8(_obj):
+        value = _obj._NodeObject__r.u8()
+        _obj._NodeObject__r.skip(-1)
+        return value
+
+    if peek8(obj) == 0:
+        # Consume end padding in Frontier AUX
+        size = obj._NodeObject__r.size
+        lastval = 0
+        while lastval == 0:
+            current = obj._NodeObject__r.current()
+            if current == size:
+                return
+            obj._omax = min(current + 1, size)
+            obj.u8i('padding')
+            lastval = obj.lastval
+            obj.consume()
     #CAkBankMgr::LoadBank
     chunk = None
     try:
